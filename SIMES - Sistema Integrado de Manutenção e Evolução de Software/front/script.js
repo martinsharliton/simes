@@ -138,7 +138,6 @@ function renderizarTabela(dados) {
   dados.forEach(aceitacao => {
     const row = document.createElement('tr');
     row.innerHTML = `
-            <td>${aceitacao.idTesteAceitacao}</td>
             <td>${aceitacao.idTesteSistema}</td>
             <td>${aceitacao.responsavelValidacao}</td>
             <td>${getStatusBadge(aceitacao.statusAceite)}</td>

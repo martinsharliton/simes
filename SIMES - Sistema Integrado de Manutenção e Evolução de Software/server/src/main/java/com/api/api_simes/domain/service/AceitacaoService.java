@@ -23,23 +23,36 @@ public class AceitacaoService {
     private ModelMapper modelMapper;
 
     public AceitacaoResponseDTO criarAceitacao(AceitacaoDTO aceitacaoDTO) {
-        Aceitacao aceitacao = modelMapper.map(aceitacaoDTO, Aceitacao.class);
-        
-        // Define a data de aceite como hoje se não fornecida
-        if (aceitacao.getDataAceite() == null) {
-            aceitacao.setDataAceite(LocalDate.now());
+        try {
+            // Criar nova instância manualmente para evitar problemas de mapeamento
+            Aceitacao aceitacao = new Aceitacao();
+            
+            // Mapear campos do DTO
+            aceitacao.setIdTesteSistema(aceitacaoDTO.getIdTesteSistema());
+            aceitacao.setClienteAprovou(aceitacaoDTO.getClienteAprovou());
+            aceitacao.setFeedbackCliente(aceitacaoDTO.getFeedbackCliente());
+            aceitacao.setResponsavelValidacao(aceitacaoDTO.getResponsavelValidacao());
+            
+            // Define a data de aceite como hoje se não fornecida
+            if (aceitacaoDTO.getDataAceite() != null) {
+                aceitacao.setDataAceite(aceitacaoDTO.getDataAceite());
+            } else {
+                aceitacao.setDataAceite(LocalDate.now());
+            }
+            
+            // Define status padrão se não fornecido
+            if (aceitacaoDTO.getStatusAceite() != null) {
+                aceitacao.setStatusAceite(aceitacaoDTO.getStatusAceite());
+            } else {
+                aceitacao.setStatusAceite(1); // 1 = Pendente
+            }
+            
+            Aceitacao aceitacaoSalva = aceitacaoRepository.save(aceitacao);
+            return modelMapper.map(aceitacaoSalva, AceitacaoResponseDTO.class);
+        } catch (Exception e) {
+            System.err.println("Erro ao criar aceitação: " + e.getMessage());
+            throw new RuntimeException("Erro ao criar aceitação: " + e.getMessage(), e);
         }
-        
-        // Define status padrão se não fornecido
-        if (aceitacao.getStatusAceite() == null) {
-            aceitacao.setStatusAceite(1); // 1 = Pendente
-        }
-        
-        // Version removido temporariamente
-        // aceitacao.setVersion(0L);
-        
-        Aceitacao aceitacaoSalva = aceitacaoRepository.save(aceitacao);
-        return modelMapper.map(aceitacaoSalva, AceitacaoResponseDTO.class);
     }
 
     public List<AceitacaoResponseDTO> listarTodasAceitacoes() {
