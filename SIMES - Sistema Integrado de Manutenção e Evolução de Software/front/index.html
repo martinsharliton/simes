@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMES - Teste de Aceitação</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-clipboard-check"></i> SIMES - Teste de Aceitação</h1>
+            <p>Sistema Integrado de Manutenção e Evolução de Software</p>
+        </header>
+
+        <div class="dashboard">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <i class="fas fa-list-alt"></i>
+                    <h3>Total</h3>
+                    <p id="totalAceitacoes">0</p>
+                </div>
+                <div class="stat-card approved">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Aprovadas</h3>
+                    <p id="aprovadas">0</p>
+                </div>
+                <div class="stat-card rejected">
+                    <i class="fas fa-times-circle"></i>
+                    <h3>Reprovadas</h3>
+                    <p id="reprovadas">0</p>
+                </div>
+                <div class="stat-card pending">
+                    <i class="fas fa-clock"></i>
+                    <h3>Pendentes</h3>
+                    <p id="pendentes">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2><i class="fas fa-plus-circle"></i> Novo Teste de Aceitação</h2>
+                <form id="aceitacaoForm" class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="idTesteSistema">ID do Teste do Sistema *</label>
+                            <input type="number" id="idTesteSistema" name="idTesteSistema" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="responsavelValidacao">Responsável pela Validação *</label>
+                            <input type="text" id="responsavelValidacao" name="responsavelValidacao" required maxlength="50">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clienteAprovou">Cliente Aprovou</label>
+                            <select id="clienteAprovou" name="clienteAprovou">
+                                <option value="">Selecione...</option>
+                                <option value="true">Sim</option>
+                                <option value="false">Não</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="statusAceite">Status</label>
+                            <select id="statusAceite" name="statusAceite">
+                                <option value="1">Pendente</option>
+                                <option value="2">Em Análise</option>
+                                <option value="3">Aprovado</option>
+                                <option value="4">Reprovado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="feedbackCliente">Feedback do Cliente</label>
+                        <textarea id="feedbackCliente" name="feedbackCliente" maxlength="200" rows="3" placeholder="Digite o feedback do cliente..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataAceite">Data de Aceite</label>
+                        <input type="date" id="dataAceite" name="dataAceite">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="limparFormulario()">
+                            <i class="fas fa-eraser"></i> Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="list-section">
+                <div class="list-header">
+                    <h2><i class="fas fa-list"></i> Lista de Testes de Aceitação</h2>
+                    <div class="search-filters">
+                        <input type="text" id="searchInput" placeholder="Buscar por responsável..." class="search-input">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">Todos os Status</option>
+                            <option value="1">Pendente</option>
+                            <option value="2">Em Análise</option>
+                            <option value="3">Aprovado</option>
+                            <option value="4">Reprovado</option>
+                        </select>
+                        <button onclick="carregarAceitacoes()" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="aceitacoesTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ID Teste</th>
+                                <th>Responsável</th>
+                                <th>Status</th>
+                                <th>Aprovou</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aceitacoesTableBody">
+                            <!-- Dados serão carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para edição -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Editar Teste de Aceitação</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" class="form">
+                    <input type="hidden" id="editId" name="id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editIdTesteSistema">ID do Teste do Sistema</label>
+                            <input type="number" id="editIdTesteSistema" name="idTesteSistema" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editResponsavelValidacao">Responsável pela Validação</label>
+                            <input type="text" id="editResponsavelValidacao" name="responsavelValidacao" required maxlength="50">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editClienteAprovou">Cliente Aprovou</label>
+                            <select id="editClienteAprovou" name="clienteAprovou">
+                                <option value="">Selecione...</option>
+                                <option value="true">Sim</option>
+                                <option value="false">Não</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStatusAceite">Status</label>
+                            <select id="editStatusAceite" name="statusAceite">
+                                <option value="1">Pendente</option>
+                                <option value="2">Em Análise</option>
+                                <option value="3">Aprovado</option>
+                                <option value="4">Reprovado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editFeedbackCliente">Feedback do Cliente</label>
+                        <textarea id="editFeedbackCliente" name="feedbackCliente" maxlength="200" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editDataAceite">Data de Aceite</label>
+                        <input type="date" id="editDataAceite" name="dataAceite">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Atualizar
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
